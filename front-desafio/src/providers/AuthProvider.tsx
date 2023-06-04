@@ -8,17 +8,27 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-interface UserRequest {
+interface Contacts {
+  id: string;
   name: string;
   email: string;
   phone: string;
+}
+
+interface UserRequest {
+  map(arg0: (contact: any) => any): unknown;
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  contacts: [Contacts];
 }
 
 interface AuthContextValues {
   loginRequest: (data: LoginData) => void;
   loading: boolean;
   user: UserRequest[];
-  // userRequest: () => void;
+  userRequest: () => void;
 }
 
 export const AuthContext = createContext({} as AuthContextValues);
@@ -58,22 +68,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       toast.error("Usuário não encontrado!");
     }
-
-    const userRequest = async () => {
-      try {
-        const response = await api.get("users");
-
-        console.log(response.data);
-        setUser(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    userRequest();
   };
+
+  const userRequest = async () => {
+    try {
+      const response = await api.get("users");
+      setUser(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ loginRequest, loading, user }}>
+    <AuthContext.Provider value={{ loginRequest, loading, user, userRequest }}>
       {children}
     </AuthContext.Provider>
   );
