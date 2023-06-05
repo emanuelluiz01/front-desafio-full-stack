@@ -1,9 +1,11 @@
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 import { DivContainer } from "./style";
+import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
   const { user, userRequest } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     userRequest();
@@ -12,7 +14,10 @@ export const Dashboard = () => {
   return (
     <DivContainer>
       <ul>
-        <h2>Usuários cadastrados</h2>
+        <div>
+          <h2>Usuários cadastrados</h2>
+          <button onClick={() => navigate("/")}>Sair</button>
+        </div>
         {user.map((info) => {
           return (
             <li>
