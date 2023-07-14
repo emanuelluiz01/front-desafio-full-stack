@@ -3,6 +3,7 @@ import { LoginData } from "../pages/login/validator";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { RegisterData } from "../pages/register/validator";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -29,6 +30,7 @@ interface AuthContextValues {
   loading: boolean;
   user: UserRequest[];
   userRequest: () => void;
+  registerRequest: (data: RegisterData) => void;
 }
 
 export const AuthContext = createContext({} as AuthContextValues);
@@ -37,6 +39,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState([]);
+  const mensagem = "Email already exists";
 
   useEffect(() => {
     const token = localStorage.getItem("@user:token");
@@ -70,6 +73,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const registerRequest = async (data: RegisterData) => {
+    try {
+      const response = await api.post("users", data);
+      toast.success("Conta criada com sucesso!");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    } catch (e: any) {
+      if (e.response.data.message == mensagem) {
+        toast.error("Email ja usado por outro usuário!");
+      } else {
+        toast.error(e.response.data.message);
+      }
+    }
+  };
+
   const userRequest = async () => {
     try {
       const response = await api.get("users");
@@ -80,7 +100,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ loginRequest, loading, user, userRequest }}>
+    <AuthContext.Provider
+      value={{ loginRequest, loading, user, userRequest, registerRequest }}
+    >
       {children}
     </AuthContext.Provider>
   );
